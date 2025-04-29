@@ -6,6 +6,7 @@ env/
 .venv/
 
 # Build artifacts
+*.ico
 build/
 dist/
 *.spec
@@ -18,3 +19,9 @@ data/Expense_Tracker_backup_*.xlsx
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Windows Scripts
+*.bat
+
+# Extra
+personal_commands.txt
