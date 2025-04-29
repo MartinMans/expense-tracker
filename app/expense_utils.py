@@ -1,14 +1,32 @@
 import pandas as pd
+from pathlib import Path
 import os
-
-# Path to your Excel file
-filepath = './data/Expense_Tracker.xlsx'
 
 # Fixed list of categories
 categories = [
     'Restaurant', 'Toters', 'Entertainment', 'Groceries', 'Snacks', 
     'Barber', 'Laundry', 'Transportation', 'Shopping', 'Phone'
 ]
+
+def load_data():
+    """"Load the Excel file and return the DataFrame and file path."""
+    project_root = Path(__file__).resolve().parents[1]
+    filepath = project_root / 'data' / 'Expense_Tracker.xlsx'
+    
+    try:
+        df = pd.read_excel(filepath)
+    except FileNotFoundError:
+        print("⚠️ No expense tracker file found. Creating a new one...")
+        df = pd.DataFrame({
+            'Date': pd.Series(dtype='str'),
+            'Category': pd.Series(dtype='str'),
+            'Amount': pd.Series(dtype='float'),
+            'Notes': pd.Series(dtype='str')
+        })
+        df.to_excel(filepath, index=False)
+        print(f"✅ New expense tracker created at {filepath}")
+    
+    return df, filepath
 
 def validate_date(date_str):
     """Validate input in DD/MM/YYYY format, return a string in YY/MM/DD format."""

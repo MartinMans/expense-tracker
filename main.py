@@ -1,28 +1,9 @@
-from app.expense_utils import get_expense_details, save_expense_entry
+from app.expense_utils import get_expense_details, save_expense_entry, load_data
 from visuals.visualize import main as visualize_menu
 from tools.manual_backup import create_manual_backup
 from tools.delete_data import delete_main_expense_tracker
 import pandas as pd
 from pathlib import Path
-
-def load_data():
-    project_root = Path(__file__).resolve().parent
-    filepath = project_root / 'data' / 'Expense_Tracker.xlsx'
-    
-    try:
-        df = pd.read_excel(filepath)
-    except FileNotFoundError:
-        print("⚠️ No expense tracker file found. Creating a new one...")
-        df = pd.DataFrame({
-            'Date': pd.Series(dtype='str'),
-            'Category': pd.Series(dtype='str'),
-            'Amount': pd.Series(dtype='float'),
-            'Notes': pd.Series(dtype='str')
-        })
-        df.to_excel(filepath, index=False)
-        print(f"✅ New expense tracker created at {filepath}")
-    
-    return df, filepath
 
 def insert_new_expense():
     """Handles inserting a new expense into the dataset."""

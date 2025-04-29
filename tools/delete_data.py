@@ -10,12 +10,8 @@ def delete_main_expense_tracker():
         print("⚠️ No expense tracker file found to delete.")
         return
 
-    confirmation = input("⚠️ Are you sure you want to delete the main Expense Tracker file? (Y/N): ").strip().upper()
-    if confirmation == 'Y':
-        os.remove(filepath)
-        print(f"🗑️ Deleted main expense tracker file: {filepath}")
-    else:
-        print("❌ Deletion canceled. File is safe.")
+    os.remove(filepath)
+    print(f"✅ Deleted the main expense tracker file: {filepath}")
 
 if __name__ == "__main__":
     delete_main_expense_tracker()
