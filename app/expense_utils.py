@@ -45,9 +45,19 @@ def get_expense_details():
         'Notes': notes
     }
 
-def save_expense_entry(df, entry):
-    """Append a new expense entry and save the Excel file."""
+# Helper for save_expense_entry
+def sort_expenses_by_date(df):
+    df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d')
+    df = df.sort_values(by='Date').reset_index(drop=True)
+    df['Date'] = df['Date'].dt.strftime('%Y/%m/%d')
+    return df
+
+def save_expense_entry(df, entry, filepath):
+    """Add new expense entry, sort by date, and save to Excel."""
     new_row = pd.DataFrame([entry])
     df = pd.concat([df, new_row], ignore_index=True)
+
+    df = sort_expenses_by_date(df)
     df.to_excel(filepath, index=False)
+    print("✅ New expense saved successfully!")
     return df

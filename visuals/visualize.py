@@ -1,8 +1,6 @@
-# visuals/visualize.py
-
 import pandas as pd
 from pathlib import Path
-from plot_utils import plot_monthly_spending, plot_spending_per_category, plot_cumulative_spending
+from .plot_utils import plot_monthly_spending, plot_spending_per_category, plot_cumulative_spending
 
 def load_data():
     project_root = Path(__file__).resolve().parents[1]

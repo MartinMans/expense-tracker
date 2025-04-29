@@ -1,6 +1,6 @@
 import pandas as pd
 
-from expense_utils import filepath, get_expense_details, save_expense_entry
+from app.expense_utils import filepath, get_expense_details, save_expense_entry
 
 def main():
     print("Welcome to the Expense Tracker! 📋")

@@ -1,26 +1,21 @@
 import shutil
-import os
 from pathlib import Path
 from datetime import datetime
 
-# Dynamically find project root
-project_root = Path(__file__).resolve().parents[1]
-filepath = project_root / 'data' / 'Expense_Tracker.xlsx'
-backup_dir = project_root / 'data'
-
 def create_manual_backup():
-    """Create a single backup file with today's date, overwriting old backup if it exists."""
+    """Create a manual backup of the expense tracker file."""
+    project_root = Path(__file__).resolve().parents[1]
+    filepath = project_root / 'data' / 'Expense_Tracker.xlsx'
+    backup_dir = project_root / 'data'
+
     if not filepath.exists():
         print("⚠️ No expense tracker file found to backup.")
         return
 
-    # Delete any existing backup
-    for file in os.listdir(backup_dir):
-        if file.startswith('Expense_Tracker_backup_') and file.endswith('.xlsx'):
-            os.remove(backup_dir / file)
-            print(f"🗑️ Deleted old backup: {file}")
+    # Delete existing backup for today
+    for file in backup_dir.glob('Expense_Tracker_backup_*.xlsx'):
+        file.unlink()
 
-    # Create new backup
     now = datetime.now()
     today_str = now.strftime('%Y-%m-%d')
     timestamp_str = now.strftime('%Y-%m-%d %H:%M:%S')
