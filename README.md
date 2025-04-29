@@ -43,7 +43,7 @@ expense-tracker/
 │   └── __init__.py
 ├── data/
 │   └── Expense_Tracker.xlsx (auto-generated)
-├── Expense_Tracker.exe              # ✅ Standalone executable
+├── Expense_Tracker.exe  # ✅ Standalone executable
 ├── gui.py               # GUI launcher (Python version)
 ├── main.py              # CLI menu system
 ├── run_tracker.bat      # Optional .bat launcher
