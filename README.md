@@ -7,12 +7,15 @@ A lightweight, personal expense tracking app with both a command-line and GUI in
 ## 💡 Features
 
 - Insert new expenses by date, category, amount, and optional notes
+- Autocomplete Notes field using dropdown suggestions from past entries
+- View full dataset inside the app via a "View Data" button
 - Visualize:
   - Monthly spending (line graph)
   - Spending per category (bar chart)
   - Cumulative all-time spending (line+fill)
 - Create backup files manually
 - Delete all data via confirmation prompt
+- Automatically creates the `data/` folder and Excel file if missing
 - Persistent local data stored in `data/Expense_Tracker.xlsx`
 - Runs via Python or executable `.bat` file
 - GUI built with Tkinter — centered, responsive layout
@@ -73,7 +76,6 @@ pip install -r requirements.txt
 
 - pandas
 - openpyxl
-- matplotlib
 - tkinter (built into Python standard library)
 
 ---
@@ -82,3 +84,10 @@ pip install -r requirements.txt
 
 - Package `.exe` with PyInstaller (no console pop-up)
 - Optional data import/export
+- Add column sorting and filtering to the data viewer
+
+---
+
+## 👤 Author
+
+Developed by [Martin Mansour](https://github.com/MartinMans).
