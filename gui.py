@@ -155,10 +155,59 @@ def launch_gui():
             plot_cumulative_spending(df)
         except Exception as e:
             messagebox.showerror("Error", f"❌ Failed to plot cumulative spending.\n\n{str(e)}", parent=root)
+    
+    def view_data():
+        try:
+            df, _ = load_data()
+            if df.empty:
+                messagebox.showinfo("Info", "No data available.", parent=root)
+                return
+
+            data_window = tk.Toplevel(root)
+            data_window.title("View All Expenses")
+            data_window.geometry("800x400")
+
+            # Styling
+            style = ttk.Style(data_window)
+            style.configure("Treeview", rowheight=25, borderwidth=1, relief="solid")
+            style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"))
+
+            # Frame + Scrollbars
+            frame = tk.Frame(data_window)
+            frame.pack(expand=True, fill="both")
+
+            vsb = ttk.Scrollbar(frame, orient="vertical")
+            vsb.pack(side="right", fill="y")
+
+            hsb = ttk.Scrollbar(frame, orient="horizontal")
+            hsb.pack(side="bottom", fill="x")
+
+            tree = ttk.Treeview(frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+            tree.pack(expand=True, fill="both")
+
+            vsb.config(command=tree.yview)
+            hsb.config(command=tree.xview)
+
+            tree["columns"] = list(df.columns)
+            tree["show"] = "headings"
+
+            for col in df.columns:
+                tree.heading(col, text=col)
+                tree.column(col, anchor="center", width=100)
+
+            for _, row in df.iterrows():
+                tree.insert("", tk.END, values=list(row))
+
+            # Scroll to last row
+            tree.see(tree.get_children()[-1])
+
+        except Exception as e:
+            messagebox.showerror("Error", f"❌ Failed to load data.\n\n{str(e)}", parent=root)
 
     tk.Button(visualize_panel, text="Monthly Spending", font=BUTTON_FONT, command=show_monthly_spending).pack(pady=5, fill="x")
     tk.Button(visualize_panel, text="Spending by Category", font=BUTTON_FONT, command=show_spending_by_category).pack(pady=5, fill="x")
     tk.Button(visualize_panel, text="Cumulative Spending", font=BUTTON_FONT, command=show_cumulative_spending).pack(pady=5, fill="x")
+    tk.Button(visualize_panel, text="View Data", font=BUTTON_FONT, command=view_data).pack(pady=5, fill="x")
 
     # ====== CENTER PANEL: Insert New Entry ======
     insert_panel = tk.Frame(container, width=100, padx=10, pady=10, bd=1, relief="groove")
