@@ -32,7 +32,7 @@ class AutocompleteDropdown:
             self.hide_dropdown()
 
     def show_dropdown(self, suggestions):
-        self.hide_dropdown()  # Always clear previous one
+        self.hide_dropdown()
 
         self.listbox = tk.Listbox(self.entry.master, height=min(5, len(suggestions)), bg="white", relief="solid", borderwidth=1)
         for item in suggestions:
@@ -62,23 +62,20 @@ class AutocompleteDropdown:
         if not self.listbox:
             return
 
+        current = self.listbox.curselection()
         if event.keysym == "Down":
-            if self.listbox.curselection() == ():
+            if not current:
                 self.listbox.selection_set(0)
-            else:
-                current = self.listbox.curselection()[0]
-                if current < self.listbox.size() - 1:
-                    self.listbox.selection_clear(current)
-                    self.listbox.selection_set(current + 1)
+            elif current[0] < self.listbox.size() - 1:
+                self.listbox.selection_clear(current)
+                self.listbox.selection_set(current[0] + 1)
 
         elif event.keysym == "Up":
-            if self.listbox.curselection() == ():
+            if not current:
                 self.listbox.selection_set(tk.END)
-            else:
-                current = self.listbox.curselection()[0]
-                if current > 0:
-                    self.listbox.selection_clear(current)
-                    self.listbox.selection_set(current - 1)
+            elif current[0] > 0:
+                self.listbox.selection_clear(current)
+                self.listbox.selection_set(current[0] - 1)
 
         elif event.keysym == "Return":
             self.select_suggestion(None)
@@ -89,73 +86,47 @@ class AutocompleteDropdown:
 def launch_gui():
     root = tk.Tk()
     root.title("Expense Tracker")
+    window_width, window_height = 825, 350
+    x = (root.winfo_screenwidth() // 2) - (window_width // 2)
+    y = (root.winfo_screenheight() // 2) - (window_height // 2) - 75
+    root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
-    # Set desired size
-    window_width = 825
-    window_height = 350
-
-    # Center the window
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    x_coordinate = (screen_width // 2) - (window_width // 2)
-    y_coordinate = (screen_height // 2) - (window_height // 2) - 75 # I find setting this to -75 makes it eye level
-
-    root.geometry(f"{window_width}x{window_height}+{x_coordinate}+{y_coordinate}")
-
-    # Fonts
     HEADER_FONT = ("Segoe UI", 14, "bold")
     LABEL_FONT = ("Segoe UI", 10)
     BUTTON_FONT = ("Segoe UI", 10)
 
-    # Allow the root window to expand cleanly
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
 
-    # ====== CONTAINER FRAME ======
     container = tk.Frame(root)
     container.pack(expand=True, fill="both")
-    container.columnconfigure(0, weight=1)
-    container.columnconfigure(1, weight=1)
-    container.columnconfigure(2, weight=1)
+    for i in range(3):
+        container.columnconfigure(i, weight=1)
 
-    # ====== LEFT PANEL: Visualize Data ======
+    # LEFT PANEL: Visualize Data
     visualize_panel = tk.Frame(container, padx=10, pady=10, bd=1, relief="groove")
     visualize_panel.grid(row=0, column=0, padx=20, sticky="nsew")
-
     tk.Label(visualize_panel, text="📊 Visualize Data", font=HEADER_FONT).pack(pady=10)
 
-    def show_monthly_spending():
+    def show_monthly():
         try:
             year = simpledialog.askinteger("Year", "Enter Year (e.g., 2025):", parent=root)
-            if year is None:
-                return
             month = simpledialog.askinteger("Month", "Enter Month (1-12):", parent=root)
-            if month is None:
-                return
-
-            def run_plot():
-                df, _ = load_data()
-                plot_monthly_spending(df, month, year)
-
-            root.after(50, run_plot)
-
+            if None in (month, year): return
+            root.after(50, lambda: plot_monthly_spending(load_data()[0], month, year))
         except Exception as e:
             messagebox.showerror("Error", f"❌ Failed to plot monthly spending.\n\n{str(e)}", parent=root)
 
-    def show_spending_by_category():
-        try:
-            df, _ = load_data()
-            plot_spending_per_category(df)
+    def show_category():
+        try: plot_spending_per_category(load_data()[0])
         except Exception as e:
-            messagebox.showerror("Error", f"❌ Failed to plot spending by category.\n\n{str(e)}", parent=root)
+            messagebox.showerror("Error", f"❌ Failed to plot category spending.\n\n{str(e)}", parent=root)
 
-    def show_cumulative_spending():
-        try:
-            df, _ = load_data()
-            plot_cumulative_spending(df)
+    def show_cumulative():
+        try: plot_cumulative_spending(load_data()[0])
         except Exception as e:
             messagebox.showerror("Error", f"❌ Failed to plot cumulative spending.\n\n{str(e)}", parent=root)
-    
+
     def view_data():
         try:
             df, _ = load_data()
@@ -163,28 +134,24 @@ def launch_gui():
                 messagebox.showinfo("Info", "No data available.", parent=root)
                 return
 
-            data_window = tk.Toplevel(root)
-            data_window.title("View All Expenses")
-            data_window.geometry("800x400")
+            win = tk.Toplevel(root)
+            win.title("View All Expenses")
+            win.geometry("800x400")
 
-            # Styling
-            style = ttk.Style(data_window)
-            style.configure("Treeview", rowheight=25, borderwidth=1, relief="solid")
+            style = ttk.Style(win)
+            style.configure("Treeview", rowheight=25)
             style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"))
 
-            # Frame + Scrollbars
-            frame = tk.Frame(data_window)
+            frame = tk.Frame(win)
             frame.pack(expand=True, fill="both")
 
             vsb = ttk.Scrollbar(frame, orient="vertical")
-            vsb.pack(side="right", fill="y")
-
             hsb = ttk.Scrollbar(frame, orient="horizontal")
-            hsb.pack(side="bottom", fill="x")
-
             tree = ttk.Treeview(frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-            tree.pack(expand=True, fill="both")
 
+            vsb.pack(side="right", fill="y")
+            hsb.pack(side="bottom", fill="x")
+            tree.pack(expand=True, fill="both")
             vsb.config(command=tree.yview)
             hsb.config(command=tree.xview)
 
@@ -198,22 +165,23 @@ def launch_gui():
             for _, row in df.iterrows():
                 tree.insert("", tk.END, values=list(row))
 
-            # Scroll to last row
             tree.see(tree.get_children()[-1])
 
         except Exception as e:
             messagebox.showerror("Error", f"❌ Failed to load data.\n\n{str(e)}", parent=root)
 
-    tk.Button(visualize_panel, text="Monthly Spending", font=BUTTON_FONT, command=show_monthly_spending).pack(pady=5, fill="x")
-    tk.Button(visualize_panel, text="Spending by Category", font=BUTTON_FONT, command=show_spending_by_category).pack(pady=5, fill="x")
-    tk.Button(visualize_panel, text="Cumulative Spending", font=BUTTON_FONT, command=show_cumulative_spending).pack(pady=5, fill="x")
-    tk.Button(visualize_panel, text="View Data", font=BUTTON_FONT, command=view_data).pack(pady=5, fill="x")
+    for label, func in [
+        ("Monthly Spending", show_monthly),
+        ("Spending by Category", show_category),
+        ("Cumulative Spending", show_cumulative),
+        ("View Data", view_data)
+    ]:
+        tk.Button(visualize_panel, text=label, font=BUTTON_FONT, command=func).pack(pady=5, fill="x")
 
-    # ====== CENTER PANEL: Insert New Entry ======
+    # CENTER PANEL: Insert New Entry
     insert_panel = tk.Frame(container, width=100, padx=10, pady=10, bd=1, relief="groove")
     insert_panel.grid(row=0, column=1, padx=20, sticky="nsew")
     insert_panel.grid_propagate(False)
-
     tk.Label(insert_panel, text="📟 Insert New Entry", font=HEADER_FONT).pack(pady=10)
 
     tk.Label(insert_panel, text="Date (DD/MM/YYYY):", font=LABEL_FONT).pack(anchor="w")
@@ -277,34 +245,17 @@ def launch_gui():
 
     tk.Button(insert_panel, text="Submit", font=BUTTON_FONT, command=submit_expense).pack(pady=10)
 
-    # ====== RIGHT PANEL: Additional Tools ======
+    # RIGHT PANEL: Additional Tools
     tools_panel = tk.Frame(container, padx=10, pady=10, bd=1, relief="groove")
     tools_panel.grid(row=0, column=2, padx=20, sticky="nsew")
-
     tk.Label(tools_panel, text="🔧 Additional Tools", font=HEADER_FONT).pack(pady=10)
 
-    def handle_backup():
-        try:
-            create_manual_backup()
-            messagebox.showinfo("Backup Created", "✅ Backup file created successfully!", parent=root)
-        except Exception as e:
-            messagebox.showerror("Error", f"❌ Failed to create backup.\n\n{str(e)}", parent=root)
-
-    def handle_delete():
-        confirm = messagebox.askyesno("⚠️ Confirm Deletion", "Are you sure you want to delete the main Excel file?", parent=root)
-        if confirm:
-            try:
-                delete_main_expense_tracker()
-                messagebox.showinfo("Deleted", "🗑️ Main Excel file deleted.", parent=root)
-            except Exception as e:
-                messagebox.showerror("Error", f"❌ Failed to delete file.\n\n{str(e)}", parent=root)
-
-    def handle_exit():
-        root.quit()
-
-    tk.Button(tools_panel, text="Create Backup", font=BUTTON_FONT, command=handle_backup).pack(pady=5, fill="x")
-    tk.Button(tools_panel, text="Delete Data", font=BUTTON_FONT, command=handle_delete).pack(pady=5, fill="x")
-    tk.Button(tools_panel, text="Exit", font=BUTTON_FONT, command=handle_exit).pack(pady=5, fill="x")
+    for label, func in [
+        ("Create Backup", lambda: (create_manual_backup(), messagebox.showinfo("Backup", "✅ Backup created!", parent=root))),
+        ("Delete Data", lambda: delete_main_expense_tracker() if messagebox.askyesno("⚠️ Confirm", "Delete Excel file?", parent=root) else None),
+        ("Exit", root.quit)
+    ]:
+        tk.Button(tools_panel, text=label, font=BUTTON_FONT, command=func).pack(pady=5, fill="x")
 
     root.mainloop()
 

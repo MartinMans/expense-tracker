@@ -1,66 +1,70 @@
 # Expense Tracker 🧾
 
-A lightweight, personal expense tracking app with both a command-line and GUI interface. Easily log your daily expenses, view visualizations, and manage your data locally via Excel.
+A lightweight personal expense tracking app with both a command-line and GUI interface. Easily log expenses, view visualizations, and manage local data via Excel.
+
+Now available as a standalone `.exe` — no Python installation required!
 
 ---
 
 ## 💡 Features
 
-- Insert new expenses by date, category, amount, and optional notes
-- Autocomplete Notes field using dropdown suggestions from past entries
-- View full dataset inside the app via a "View Data" button
+- Add expenses with date, category, amount, and optional notes
+- Autocomplete suggestions for notes based on past entries
+- View full dataset inside the app
 - Visualize:
   - Monthly spending (line graph)
   - Spending per category (bar chart)
-  - Cumulative all-time spending (line+fill)
+  - Cumulative all-time spending (line + fill)
 - Create backup files manually
 - Delete all data via confirmation prompt
-- Automatically creates the `data/` folder and Excel file if missing
-- Persistent local data stored in `data/Expense_Tracker.xlsx`
-- Runs via Python or executable `.bat` file
-- GUI built with Tkinter — centered, responsive layout
+- Auto-creates `data/` folder and Excel file if missing
+- Local data stored in `data/Expense_Tracker.xlsx`
+- GUI built with Tkinter (centered, responsive layout)
+- Available as a Python script **or** standalone `.exe`
 
 ---
 
-## 📁 Project Structure
+## 📁 Folder Structure
 
 ```
 expense-tracker/
-├── app/                # Core logic (data handling, saving, validation)
+├── app/
 │   ├── expense_tracker.py
 │   ├── expense_utils.py
 │   └── __init__.py
-├── visuals/            # Visualization logic
+├── visuals/
 │   ├── plot_utils.py
 │   ├── visualize.py
 │   └── __init__.py
-├── tools/              # Developer tools (backup, delete, dummy data)
+├── tools/
 │   ├── manual_backup.py
 │   ├── delete_data.py
 │   ├── generate_dummy_data.py
 │   └── __init__.py
-├── data/               # Stores `Expense_Tracker.xlsx` and backup
-│   └── (auto-created on first run)
-├── gui.py              # GUI launcher (Tkinter-based)
-├── main.py             # CLI menu system
-├── run_tracker.bat     # One-click launcher (for Windows)
-├── README.md
+├── data/
+│   └── Expense_Tracker.xlsx (auto-generated)
+├── gui.exe              # ✅ Standalone executable
+├── gui.py               # GUI launcher (Python version)
+├── main.py              # CLI menu system
+├── run_tracker.bat      # Optional .bat launcher
+├── requirements.txt
 ├── .gitignore
-└── requirements.txt
+└── README.md
 ```
 
 ---
 
-## 🚀 How to Run
+## 🚀 How to Use
 
-### 🔹 GUI App
+### 🟢 Standalone .exe
 
-```bash
-python gui.py
-```
-Or double-click `run_tracker.bat` to launch with no terminal.
+Just double-click `gui.exe` — no need to install Python!
 
-### 🔹 CLI Mode
+> ℹ️ If `Expense_Tracker.xlsx` is missing, it will be created automatically in `data/`
+
+---
+
+### 🧪 Python CLI Mode
 
 ```bash
 python main.py
@@ -68,26 +72,28 @@ python main.py
 
 ---
 
-## 🛠 Requirements
+### 🧪 Python GUI Mode (Dev)
+
+```bash
+python gui.py
+```
+
+---
+
+## 📦 Requirements (for devs)
 
 ```bash
 pip install -r requirements.txt
 ```
 
 - pandas
+- matplotlib
 - openpyxl
-- tkinter (built into Python standard library)
-
----
-
-## 📦 Future Plans
-
-- Package `.exe` with PyInstaller (no console pop-up)
-- Optional data import/export
-- Add column sorting and filtering to the data viewer
+- pillow
+- tkinter (bundled with Python)
 
 ---
 
 ## 👤 Author
 
-Developed by [Martin Mansour](https://github.com/MartinMans).
+Developed by [Martin Mansour](https://github.com/MartinMans)

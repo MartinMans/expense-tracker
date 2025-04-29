@@ -1,4 +1,20 @@
+# Python build
 __pycache__/
-data/Expense_Tracker_backup*.xlsx
-data/Expense_Tracker*.xlsx
-.vscode
+
+# venv
+env/
+.venv/
+
+# Build artifacts
+build/
+dist/
+*.spec
+
+# Excel data
+data/Expense_Tracker.xlsx
+data/Expense_Tracker_backup_*.xlsx
+
+# OS + editor junk
+.DS_Store
+Thumbs.db
+.vscode/

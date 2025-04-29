@@ -1,6 +1,7 @@
-import pandas as pd
 from pathlib import Path
+import pandas as pd
 import os
+import sys
 
 # Fixed list of categories
 categories = [
@@ -8,17 +9,25 @@ categories = [
     'Barber', 'Laundry', 'Transportation', 'Shopping', 'Phone'
 ]
 
-def load_data():
-    """
-    Load the Excel file and return the DataFrame and file path. 
-    If folder doesn't exist, create it. 
-    Similarly, if the file doesn't exist, create it.
-    """
-    project_root = Path(__file__).resolve().parents[1]
-    filepath = project_root / 'data' / 'Expense_Tracker.xlsx'
+# ========== PATH SETUP ==========
+def get_base_path():
+    """Returns correct base path whether running from script or PyInstaller .exe"""
+    if getattr(sys, 'frozen', False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parents[1]
 
-    # Ensure data directory exists
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+def get_data_filepath():
+    """Returns the full path to the Excel file and ensures the data directory exists."""
+    base_path = get_base_path()
+    data_dir = base_path / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir / "Expense_Tracker.xlsx"
+
+# ========== DATA FUNCTIONS ==========
+
+def load_data():
+    """Load the Excel file and return the DataFrame and file path."""
+    filepath = get_data_filepath()
 
     try:
         df = pd.read_excel(filepath)
@@ -70,8 +79,10 @@ def get_expense_details():
         'Notes': notes
     }
 
-# Helper for save_expense_entry
+# ========== SAVE LOGIC ==========
+
 def sort_expenses_by_date(df):
+    """Sort the DataFrame by date and format it back to string format."""
     df['Date'] = pd.to_datetime(df['Date'], format='%Y/%m/%d')
     df = df.sort_values(by='Date').reset_index(drop=True)
     df['Date'] = df['Date'].dt.strftime('%Y/%m/%d')

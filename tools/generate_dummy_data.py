@@ -1,10 +1,17 @@
 import pandas as pd
 import random
 from pathlib import Path
+import sys
+
+def get_base_path():
+    """Returns correct base path whether running from script or PyInstaller .exe"""
+    if getattr(sys, 'frozen', False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parents[1]
 
 def generate_dummy_data():
-    project_root = Path(__file__).resolve().parents[1]
-    filepath = project_root / 'data' / 'Expense_Tracker.xlsx'
+    base_path = get_base_path()
+    filepath = base_path / 'data' / 'Expense_Tracker.xlsx'
 
     categories = [
         'Restaurant', 'Toters', 'Entertainment', 'Groceries', 'Snacks',
@@ -28,14 +35,12 @@ def generate_dummy_data():
     # Create DataFrame
     df = pd.DataFrame(expenses)
 
-    # Sort by date
+    # Sort and format
     df = df.sort_values(by='Date').reset_index(drop=True)
-
-    # Format date nicely
     df['Date'] = df['Date'].dt.strftime('%Y/%m/%d')
 
-    # Save
-    filepath.parent.mkdir(parents=True, exist_ok=True)  # Make sure the directory exists
+    # Ensure directory exists and save
+    filepath.parent.mkdir(parents=True, exist_ok=True)
     df.to_excel(filepath, index=False)
     print(f"✅ Dummy data generated and saved to {filepath}")
 

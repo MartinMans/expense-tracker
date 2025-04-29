@@ -2,8 +2,6 @@ from app.expense_utils import get_expense_details, save_expense_entry, load_data
 from visuals.visualize import main as visualize_menu
 from tools.manual_backup import create_manual_backup
 from tools.delete_data import delete_main_expense_tracker
-import pandas as pd
-from pathlib import Path
 
 def insert_new_expense():
     """Handles inserting a new expense into the dataset."""

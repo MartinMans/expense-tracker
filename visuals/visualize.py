@@ -1,10 +1,22 @@
 import pandas as pd
 from pathlib import Path
-from .plot_utils import plot_monthly_spending, plot_spending_per_category, plot_cumulative_spending
+import sys
+
+from .plot_utils import (
+    plot_monthly_spending,
+    plot_spending_per_category,
+    plot_cumulative_spending,
+)
+
+def get_base_path():
+    """Returns correct base path whether running from script or PyInstaller .exe"""
+    if getattr(sys, 'frozen', False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parents[1]
 
 def load_data():
-    project_root = Path(__file__).resolve().parents[1]
-    filepath = project_root / 'data' / 'Expense_Tracker.xlsx'
+    base_path = get_base_path()
+    filepath = base_path / 'data' / 'Expense_Tracker.xlsx'
     df = pd.read_excel(filepath)
     return df
 
