@@ -9,10 +9,17 @@ categories = [
 ]
 
 def load_data():
-    """"Load the Excel file and return the DataFrame and file path."""
+    """
+    Load the Excel file and return the DataFrame and file path. 
+    If folder doesn't exist, create it. 
+    Similarly, if the file doesn't exist, create it.
+    """
     project_root = Path(__file__).resolve().parents[1]
     filepath = project_root / 'data' / 'Expense_Tracker.xlsx'
-    
+
+    # Ensure data directory exists
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+
     try:
         df = pd.read_excel(filepath)
     except FileNotFoundError:
@@ -25,7 +32,7 @@ def load_data():
         })
         df.to_excel(filepath, index=False)
         print(f"✅ New expense tracker created at {filepath}")
-    
+
     return df, filepath
 
 def validate_date(date_str):
