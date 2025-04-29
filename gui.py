@@ -7,6 +7,85 @@ from visuals.plot_utils import plot_monthly_spending, plot_spending_per_category
 from tools.manual_backup import create_manual_backup
 from tools.delete_data import delete_main_expense_tracker
 
+class AutocompleteDropdown:
+    def __init__(self, entry, suggestions):
+        self.entry = entry
+        self.suggestions = suggestions
+        self.listbox = None
+        self.entry.bind("<KeyRelease>", self.on_keyrelease)
+
+    def on_keyrelease(self, event):
+        if event.keysym in ["Up", "Down", "Return", "Escape"]:
+            if self.listbox:
+                self.navigate_listbox(event)
+            return
+
+        typed = self.entry.get()
+        if typed == "":
+            self.hide_dropdown()
+            return
+
+        matches = [s for s in self.suggestions if s.lower().startswith(typed.lower())]
+        if matches:
+            self.show_dropdown(matches)
+        else:
+            self.hide_dropdown()
+
+    def show_dropdown(self, suggestions):
+        self.hide_dropdown()  # Always clear previous one
+
+        self.listbox = tk.Listbox(self.entry.master, height=min(5, len(suggestions)), bg="white", relief="solid", borderwidth=1)
+        for item in suggestions:
+            self.listbox.insert(tk.END, item)
+
+        x_offset = self.entry.winfo_rootx() - self.entry.master.winfo_rootx() - 12
+        y_offset = self.entry.winfo_y() + self.entry.winfo_height() - 8
+        self.listbox.place(x=x_offset, y=y_offset)
+
+        self.listbox.bind("<ButtonRelease-1>", self.select_suggestion)
+
+    def hide_dropdown(self):
+        if self.listbox:
+            self.listbox.destroy()
+            self.listbox = None
+
+    def select_suggestion(self, event):
+        if self.listbox:
+            index = self.listbox.curselection()
+            if index:
+                value = self.listbox.get(index)
+                self.entry.delete(0, tk.END)
+                self.entry.insert(0, value)
+            self.hide_dropdown()
+
+    def navigate_listbox(self, event):
+        if not self.listbox:
+            return
+
+        if event.keysym == "Down":
+            if self.listbox.curselection() == ():
+                self.listbox.selection_set(0)
+            else:
+                current = self.listbox.curselection()[0]
+                if current < self.listbox.size() - 1:
+                    self.listbox.selection_clear(current)
+                    self.listbox.selection_set(current + 1)
+
+        elif event.keysym == "Up":
+            if self.listbox.curselection() == ():
+                self.listbox.selection_set(tk.END)
+            else:
+                current = self.listbox.curselection()[0]
+                if current > 0:
+                    self.listbox.selection_clear(current)
+                    self.listbox.selection_set(current - 1)
+
+        elif event.keysym == "Return":
+            self.select_suggestion(None)
+
+        elif event.keysym == "Escape":
+            self.hide_dropdown()
+
 def launch_gui():
     root = tk.Tk()
     root.title("Expense Tracker")
@@ -97,7 +176,7 @@ def launch_gui():
     category_combo = ttk.Combobox(insert_panel, values=[
         "Restaurant", "Toters", "Entertainment", "Groceries", "Snacks",
         "Barber", "Laundry", "Transportation", "Shopping", "Phone"
-    ])
+    ], state="readonly")
     category_combo.pack(pady=2, fill="x")
     category_combo.set("Restaurant")
 
@@ -106,14 +185,18 @@ def launch_gui():
     amount_entry.pack(pady=2, fill="x")
 
     tk.Label(insert_panel, text="Notes (optional):", font=LABEL_FONT).pack(anchor="w")
-    notes_entry = tk.Text(insert_panel, height=3, width=40)
-    notes_entry.pack(pady=2)
+    notes_entry = tk.Entry(insert_panel)
+    notes_entry.pack(pady=2, fill="x")
+
+    df, _ = load_data()
+    restaurant_notes = df[df["Category"] == "Restaurant"]["Notes"].dropna().unique().tolist()
+    AutocompleteDropdown(notes_entry, restaurant_notes)
 
     def submit_expense():
         date_str = date_entry.get().strip()
         category = category_combo.get().strip()
         amount_str = amount_entry.get().strip()
-        notes = notes_entry.get("1.0", tk.END).strip()
+        notes = notes_entry.get().strip()
 
         try:
             pd.to_datetime(date_str, format='%d/%m/%Y')
@@ -140,7 +223,7 @@ def launch_gui():
 
         date_entry.delete(0, tk.END)
         amount_entry.delete(0, tk.END)
-        notes_entry.delete("1.0", tk.END)
+        notes_entry.delete(0, tk.END)
         category_combo.set("Restaurant")
 
     tk.Button(insert_panel, text="Submit", font=BUTTON_FONT, command=submit_expense).pack(pady=10)

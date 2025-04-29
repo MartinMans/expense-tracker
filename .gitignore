@@ -1,3 +1,4 @@
 __pycache__/
 data/Expense_Tracker_backup*.xlsx
+data/Expense_Tracker*.xlsx
 .vscode
